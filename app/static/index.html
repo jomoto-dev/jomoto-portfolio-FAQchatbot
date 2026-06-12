@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ Chatbot</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f5f7fb;
+      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(880px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .lead {
+      margin: 0 0 24px;
+      color: #5b6472;
+    }
+
+    .chat-panel {
+      background: #ffffff;
+      border: 1px solid #d9e0ea;
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(31, 41, 55, 0.08);
+      overflow: hidden;
+    }
+
+    .messages {
+      display: grid;
+      gap: 16px;
+      min-height: 320px;
+      padding: 24px;
+    }
+
+    .message {
+      border-radius: 8px;
+      padding: 16px;
+      line-height: 1.7;
+    }
+
+    .message.user {
+      background: #e8f1ff;
+      border: 1px solid #c6dcff;
+    }
+
+    .message.answer {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .label {
+      margin: 0 0 8px;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .message p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    .citations {
+      border-top: 1px solid #e2e8f0;
+      background: #fbfdff;
+      padding: 20px 24px;
+    }
+
+    .citations h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .citation-item {
+      margin: 0 0 12px;
+      padding: 12px;
+      border: 1px solid #d9e0ea;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .citation-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .citation-meta {
+      margin: 0 0 6px;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      border-top: 1px solid #d9e0ea;
+      padding: 16px;
+      background: #ffffff;
+    }
+
+    input {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 16px;
+    }
+
+    button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 20px;
+      background: #2563eb;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: min(100% - 20px, 880px);
+        padding: 28px 0;
+      }
+
+      .form {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>FAQ Chatbot</h1>
+    <p class="lead">質問を入力すると、FAQから関連する回答と引用元を表示します。</p>
+
+    <section class="chat-panel">
+      <div class="messages">
+        <div class="message user">
+          <div class="label">質問</div>
+          <p id="question-display">質問を入力して送信してください。</p>
+        </div>
+        <div class="message answer">
+          <div class="label">回答</div>
+          <p id="answer">ここに回答が表示されます。</p>
+        </div>
+      </div>
+
+      <section class="citations">
+        <h2>引用元</h2>
+        <div id="citations">引用元はまだありません。</div>
+      </section>
+
+      <form class="form" id="question-form">
+        <input id="question-input" type="text" placeholder="返金について教えてください" autocomplete="off">
+        <button id="submit-button" type="submit">送信</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("question-form");
+    const input = document.getElementById("question-input");
+    const questionDisplay = document.getElementById("question-display");
+    const answer = document.getElementById("answer");
+    const citations = document.getElementById("citations");
+    const button = document.getElementById("submit-button");
+
+    function showCitations(items) {
+      citations.innerHTML = "";
+
+      if (!items || items.length === 0) {
+        citations.textContent = "引用元は見つかりませんでした";
+        return;
+      }
+
+      for (const item of items) {
+        const block = document.createElement("div");
+        block.className = "citation-item";
+
+        const meta = document.createElement("p");
+        meta.className = "citation-meta";
+        meta.textContent = `${item.source} / ${item.chunk_id}`;
+
+        const text = document.createElement("p");
+        text.textContent = item.text;
+
+        block.appendChild(meta);
+        block.appendChild(text);
+        citations.appendChild(block);
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const question = input.value.trim();
+      if (!question) {
+        answer.textContent = "質問を入力してください。";
+        showCitations([]);
+        return;
+      }
+
+      button.disabled = true;
+      questionDisplay.textContent = question;
+      answer.textContent = "回答を検索しています。";
+      showCitations([]);
+
+      try {
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ question: question })
+        });
+
+        const data = await response.json();
+        answer.textContent = data.answer;
+        showCitations(data.citations);
+      } catch (error) {
+        answer.textContent = "エラーが発生しました。時間をおいて再度お試しください。";
+        showCitations([]);
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

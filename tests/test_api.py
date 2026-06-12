@@ -7,6 +7,12 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_index_returns_ok():
+    response = client.get("/")
+
+    assert response.status_code == 200
+
+
 def test_health_returns_ok():
     response = client.get("/health")
 
