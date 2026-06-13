@@ -36,7 +36,7 @@ def split_pdf_text_into_chunks(text: str) -> list[str]:
     return [_normalize_chunk_text(line) for line in cleaned_lines]
 
 
-def load_pdf_chunks(pdf_path: Path) -> list[dict]:
+def load_pdf_chunks(pdf_path: Path, source_name: str | None = None) -> list[dict]:
     if not pdf_path.exists():
         raise FileNotFoundError
 
@@ -44,6 +44,7 @@ def load_pdf_chunks(pdf_path: Path) -> list[dict]:
 
     chunks = []
     chunk_number = 1
+    source = source_name or pdf_path.name
 
     with fitz.open(pdf_path) as document:
         for page_index, page in enumerate(document, start=1):
@@ -53,7 +54,7 @@ def load_pdf_chunks(pdf_path: Path) -> list[dict]:
                 chunks.append(
                     {
                         "text": text,
-                        "source": pdf_path.name,
+                        "source": source,
                         "page": page_index,
                         "chunk_id": f"chunk_{chunk_number:03d}",
                     }

@@ -116,6 +116,23 @@
       background: #ffffff;
     }
 
+    .upload-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      border-top: 1px solid #d9e0ea;
+      padding: 16px;
+      background: #fbfdff;
+    }
+
+    .upload-status {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
     input {
       width: 100%;
       min-height: 44px;
@@ -123,6 +140,10 @@
       border-radius: 8px;
       padding: 0 14px;
       font-size: 16px;
+    }
+
+    input[type="file"] {
+      padding: 10px 14px;
     }
 
     button {
@@ -151,6 +172,10 @@
       .form {
         grid-template-columns: 1fr;
       }
+
+      .upload-form {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -176,6 +201,12 @@
         <div id="citations">引用元はまだありません。</div>
       </section>
 
+      <form class="upload-form" id="upload-form">
+        <input id="pdf-input" type="file" accept="application/pdf">
+        <button id="upload-button" type="submit">PDFをアップロード</button>
+        <p class="upload-status" id="upload-status">PDFはまだアップロードされていません。</p>
+      </form>
+
       <form class="form" id="question-form">
         <input id="question-input" type="text" placeholder="返金について教えてください" autocomplete="off">
         <button id="submit-button" type="submit">送信</button>
@@ -185,11 +216,15 @@
 
   <script>
     const form = document.getElementById("question-form");
+    const uploadForm = document.getElementById("upload-form");
+    const pdfInput = document.getElementById("pdf-input");
     const input = document.getElementById("question-input");
     const questionDisplay = document.getElementById("question-display");
     const answer = document.getElementById("answer");
     const citations = document.getElementById("citations");
     const button = document.getElementById("submit-button");
+    const uploadButton = document.getElementById("upload-button");
+    const uploadStatus = document.getElementById("upload-status");
 
     function showCitations(items) {
       citations.innerHTML = "";
@@ -205,7 +240,7 @@
 
         const meta = document.createElement("p");
         meta.className = "citation-meta";
-        meta.textContent = `${item.source} / ${item.chunk_id}`;
+        meta.textContent = `${item.source} / page ${item.page} / ${item.chunk_id}`;
 
         const text = document.createElement("p");
         text.textContent = item.text;
@@ -215,6 +250,43 @@
         citations.appendChild(block);
       }
     }
+
+    uploadForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const file = pdfInput.files[0];
+      if (!file) {
+        uploadStatus.textContent = "PDFファイルを選択してください。";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      uploadButton.disabled = true;
+      uploadStatus.textContent = "PDFをアップロードしています。";
+
+      try {
+        const response = await fetch("/upload-pdf", {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          uploadStatus.textContent = data.detail || "PDFのアップロードに失敗しました。";
+          return;
+        }
+
+        uploadStatus.textContent = `PDFをアップロードしました。チャンク数: ${data.chunk_count}`;
+        answer.textContent = "PDFに関する質問を入力してください。";
+        showCitations([]);
+      } catch (error) {
+        uploadStatus.textContent = "通信に失敗しました。サーバーが起動しているか確認してください。";
+      } finally {
+        uploadButton.disabled = false;
+      }
+    });
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
