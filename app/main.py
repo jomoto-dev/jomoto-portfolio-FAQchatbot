@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from app.schemas import AskRequest
@@ -29,9 +29,19 @@ def health():
 # FAQファイルから質問に関連しそうな段落を返すエンドポイントです。
 @app.post("/ask")
 def ask(request: AskRequest):
-    faq_text = load_faq_text()
+    question = request.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="質問を入力してください。")
+
+    try:
+        faq_text = load_faq_text()
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="FAQファイルが見つかりません。")
+    except ValueError:
+        raise HTTPException(status_code=500, detail="FAQファイルが空です。")
+
     chunks = split_into_chunks(faq_text)
-    chunk, index = search_best_chunk(request.question, chunks)
+    chunk, index = search_best_chunk(question, chunks)
 
     if chunk is None:
         return {

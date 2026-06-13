@@ -241,10 +241,16 @@
         });
 
         const data = await response.json();
+        if (!response.ok) {
+          answer.textContent = data.detail || "エラーが発生しました。";
+          showCitations([]);
+          return;
+        }
+
         answer.textContent = data.answer;
         showCitations(data.citations);
       } catch (error) {
-        answer.textContent = "エラーが発生しました。時間をおいて再度お試しください。";
+        answer.textContent = "通信に失敗しました。サーバーが起動しているか確認してください。";
         showCitations([]);
       } finally {
         button.disabled = false;
