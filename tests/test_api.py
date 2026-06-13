@@ -31,6 +31,12 @@ def test_ask_returns_answer_and_citations():
     assert "answer" in data
     assert "citations" in data
     assert data["citations"]
+    assert "返金" in data["answer"]
+    assert "営業時間" not in data["answer"]
+    assert "領収書" not in data["answer"]
+
+    citation = data["citations"][0]
+    assert set(citation) == {"source", "page", "chunk_id", "text"}
 
 
 def test_ask_returns_400_when_question_is_blank():
@@ -43,11 +49,37 @@ def test_ask_returns_400_when_question_is_blank():
     assert response.json() == {"detail": "質問を入力してください。"}
 
 
-def test_ask_returns_500_when_faq_file_is_missing(monkeypatch):
+def test_ask_returns_no_match_when_question_is_one_character_a():
+    response = client.post(
+        "/ask",
+        json={"question": "あ"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "answer": "関連するFAQが見つかりませんでした。",
+        "citations": [],
+    }
+
+
+def test_ask_returns_no_match_when_question_is_one_character_i():
+    response = client.post(
+        "/ask",
+        json={"question": "い"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "answer": "関連するFAQが見つかりませんでした。",
+        "citations": [],
+    }
+
+
+def test_ask_returns_500_when_pdf_file_is_missing(monkeypatch):
     def raise_file_not_found():
         raise FileNotFoundError
 
-    monkeypatch.setattr("app.main.load_faq_text", raise_file_not_found)
+    monkeypatch.setattr("app.main.load_document_chunks", raise_file_not_found)
 
     response = client.post(
         "/ask",
@@ -55,14 +87,14 @@ def test_ask_returns_500_when_faq_file_is_missing(monkeypatch):
     )
 
     assert response.status_code == 500
-    assert response.json() == {"detail": "FAQファイルが見つかりません。"}
+    assert response.json() == {"detail": "PDFファイルが見つかりません。"}
 
 
-def test_ask_returns_500_when_faq_file_is_empty(monkeypatch):
+def test_ask_returns_500_when_pdf_text_cannot_be_extracted(monkeypatch):
     def raise_value_error():
         raise ValueError
 
-    monkeypatch.setattr("app.main.load_faq_text", raise_value_error)
+    monkeypatch.setattr("app.main.load_document_chunks", raise_value_error)
 
     response = client.post(
         "/ask",
@@ -70,7 +102,7 @@ def test_ask_returns_500_when_faq_file_is_empty(monkeypatch):
     )
 
     assert response.status_code == 500
-    assert response.json() == {"detail": "FAQファイルが空です。"}
+    assert response.json() == {"detail": "PDFからテキストを抽出できませんでした。"}
 
 
 def test_ask_returns_200_when_no_related_faq_is_found():

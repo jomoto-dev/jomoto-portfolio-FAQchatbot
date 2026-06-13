@@ -1,7 +1,10 @@
 from pathlib import Path
 
+from app.services.pdf_loader import load_pdf_chunks
+
 
 FAQ_PATH = Path(__file__).resolve().parents[2] / "data" / "sample_faq.txt"
+PDF_PATH = Path(__file__).resolve().parents[2] / "data" / "sample_policy.pdf"
 
 
 def load_faq_text() -> str:
@@ -13,3 +16,7 @@ def load_faq_text() -> str:
         raise ValueError
 
     return text
+
+
+def load_document_chunks() -> list[dict]:
+    return load_pdf_chunks(PDF_PATH)

@@ -6,21 +6,35 @@ def _extract_keywords(question: str) -> list[str]:
     for mark in ["、", "。", "？", "?", "！", "!", "。", ".", ","]:
         cleaned = cleaned.replace(mark, " ")
 
-    return [word.strip(" はをがのにでとも") for word in cleaned.split() if word.strip()]
+    keywords = []
+    for word in cleaned.split():
+        keyword = word.strip(" はをがのにでとも")
+        if len(keyword) >= 2:
+            keywords.append(keyword)
+
+    return keywords
 
 
-def search_best_chunk(question: str, chunks: list[str]) -> tuple[str | None, int]:
-    keywords = _extract_keywords(question)
-    best_index = -1
+def search_best_chunk(question: str, chunks: list[dict]) -> dict | None:
+    normalized_question = question.strip()
+    if len(normalized_question) < 2:
+        return None
+
+    keywords = _extract_keywords(normalized_question)
+    if not keywords:
+        return None
+
+    best_chunk = None
     best_score = 0
 
-    for index, chunk in enumerate(chunks):
-        score = sum(1 for keyword in keywords if keyword and keyword in chunk)
+    for chunk in chunks:
+        text = chunk["text"]
+        score = sum(1 for keyword in keywords if keyword and keyword in text)
         if score > best_score:
-            best_index = index
+            best_chunk = chunk
             best_score = score
 
     if best_score == 0:
-        return None, -1
+        return None
 
-    return chunks[best_index], best_index
+    return best_chunk
