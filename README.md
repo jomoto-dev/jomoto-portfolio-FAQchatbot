@@ -151,6 +151,9 @@ faq-rag-chatbot/
 
 `data/sample_policy_A.pdf`, `data/sample_policy_B.pdf`, `data/sample_faq.txt` はサンプルデータとして残しています。現在の通常フローでは、検索対象はユーザーがアップロードしたPDFです。
 
+・各ファイルの関係性を表した図
+<img width="2222" height="1920" alt="Image" src="https://github.com/user-attachments/assets/8629305b-7be3-4fa4-b493-a6b4b024aef1" />
+
 ## セットアップ方法
 
 ```bash
