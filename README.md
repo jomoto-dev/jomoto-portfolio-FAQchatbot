@@ -8,6 +8,38 @@ FAQ RAG Chatbot API は、ユーザーがアップロードしたPDFを検索対
 
 RAGの基本である「文書アップロード → テキスト抽出 → チャンク分割 → 関連チャンク検索 → LLM回答生成 → 引用付き回答返却」の流れを、小さく確認できるポートフォリオです。
 
+## 作成背景
+
+Pythonバックエンドエンジニア、特にLLM / NLP 関連の案件を意識し、以下を説明できるポートフォリオとして作成しました。
+
+- FastAPIによるAPI実装
+- PDFアップロード処理
+- PDFからのテキスト抽出
+- チャンク分割
+- 簡易的な検索処理
+- OpenAI APIを使ったLLM回答生成
+- 引用元付き回答の設計
+- pytestによる自動テスト
+- 機能ごとのファイル分割
+- 将来的なベクトル検索・複数PDF管理への拡張性
+
+## 使用技術
+
+- Python
+- FastAPI
+- Uvicorn
+- Pydantic
+- PyMuPDF
+- OpenAI Python SDK
+- python-dotenv
+- python-multipart
+- pytest
+- HTML / CSS / JavaScript
+
+## API一覧
+
+## セットアップ方法
+
 ## デモイメージ
 
 1. ブラウザで `http://127.0.0.1:8000/` を開く
@@ -49,34 +81,6 @@ sample_policy_A.pdf / page 1 / chunk_001
 - PDFアップロード失敗時に前回PDFの検索状態をクリアする処理
 - 空質問、PDF未アップロード、PDF以外のアップロード、抽出失敗へのエラーハンドリング
 - pytestによるAPI・PDFローダー・検索処理のテスト
-
-## 作成背景
-
-Pythonバックエンドエンジニア、特にLLM / NLP 関連の案件を意識し、以下を説明できるポートフォリオとして作成しました。
-
-- FastAPIによるAPI実装
-- PDFアップロード処理
-- PDFからのテキスト抽出
-- チャンク分割
-- 簡易的な検索処理
-- OpenAI APIを使ったLLM回答生成
-- 引用元付き回答の設計
-- pytestによる自動テスト
-- 機能ごとのファイル分割
-- 将来的なベクトル検索・複数PDF管理への拡張性
-
-## 使用技術
-
-- Python
-- FastAPI
-- Uvicorn
-- Pydantic
-- PyMuPDF
-- OpenAI Python SDK
-- python-dotenv
-- python-multipart
-- pytest
-- HTML / CSS / JavaScript
 
 ## アーキテクチャ
 
