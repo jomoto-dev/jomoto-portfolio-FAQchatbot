@@ -21,7 +21,7 @@ def upload_sample_pdf():
 def assert_no_match_response(response):
     assert response.status_code == 200
     assert response.json() == {
-        "answer": "関連するFAQが見つかりませんでした。",
+        "answer": "関連するPDF本文が見つかりませんでした。",
         "citations": [],
     }
 
@@ -262,7 +262,7 @@ def test_upload_pdf_returns_400_when_text_cannot_be_extracted(monkeypatch):
     assert response.json() == {"detail": "PDFからテキストを抽出できませんでした。"}
 
 
-def test_ask_returns_200_when_no_related_faq_is_found():
+def test_ask_returns_200_when_no_related_pdf_text_is_found():
     upload_response = upload_sample_pdf()
     assert upload_response.status_code == 200
 

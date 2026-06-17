@@ -94,7 +94,7 @@ def ask(request: AskRequest):
 
     if not relevant_chunks:
         return {
-            "answer": "関連するFAQが見つかりませんでした。",
+            "answer": "関連するPDF本文が見つかりませんでした。",
             "citations": [],
         }
 
