@@ -1,4 +1,4 @@
-from app.services.retriever import search_relevant_chunks
+from app.services.retriever import _extract_keywords, search_relevant_chunks
 
 
 def test_search_relevant_chunks_finds_policy_agreement_from_natural_question():
@@ -41,3 +41,21 @@ def test_search_relevant_chunks_returns_empty_for_one_character_question():
     ]
 
     assert search_relevant_chunks("あ", chunks) == []
+
+
+def test_extract_keywords_keeps_important_terms_from_natural_question():
+    keywords = _extract_keywords("規約の同意はどのように成立する？")
+
+    assert "規約" in keywords
+    assert "同意" in keywords
+    assert "成立" in keywords
+    assert "規約の同意" not in keywords
+    assert "どのように" not in keywords
+
+
+def test_extract_keywords_ignores_one_character_question():
+    assert _extract_keywords("あ") == []
+
+
+def test_extract_keywords_removes_duplicates_while_preserving_order():
+    assert _extract_keywords("返金について返金を教えてください") == ["返金"]

@@ -28,6 +28,7 @@ POSSESSIVE_PHRASE_BONUS = 2
 
 
 def _extract_keywords(question: str) -> list[str]:
+    """質問文から検索に使う2文字以上の重要語を順序を保って抽出します。"""
     cleaned = question
     for word in STOP_PHRASES:
         cleaned = cleaned.replace(word, " ")
@@ -37,20 +38,14 @@ def _extract_keywords(question: str) -> list[str]:
 
     keywords = []
     for phrase in cleaned.split():
-        keyword = phrase.strip("".join(PARTICLES))
-        if len(keyword) >= 2:
-            keywords.append(keyword)
+        particle_split_phrase = phrase
+        for particle in PARTICLES:
+            particle_split_phrase = particle_split_phrase.replace(particle, " ")
 
-    for particle in PARTICLES:
-        cleaned = cleaned.replace(particle, " ")
-
-    for word in STOP_PHRASES:
-        cleaned = cleaned.replace(word, " ")
-
-    for word in cleaned.split():
-        keyword = word.strip("".join(PARTICLES))
-        if len(keyword) >= 2:
-            keywords.append(keyword)
+        for word in particle_split_phrase.split():
+            keyword = word.strip("".join(PARTICLES))
+            if len(keyword) >= 2:
+                keywords.append(keyword)
 
     return list(dict.fromkeys(keywords))
 
