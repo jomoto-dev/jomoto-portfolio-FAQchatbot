@@ -70,7 +70,7 @@ async def upload_pdf(file: UploadFile = File(...)):
     except Exception:
         raise HTTPException(status_code=400, detail="PDFからテキストを抽出できませんでした。")
 
-    document_store.set_current_document(chunks, filename)
+    document_store.set_current_document(chunks)
 
     return {
         "message": "PDFをアップロードしました。",

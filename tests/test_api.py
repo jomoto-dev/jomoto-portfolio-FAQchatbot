@@ -175,7 +175,7 @@ def test_ask_sends_multiple_relevant_chunks_to_llm(monkeypatch):
         return "規約の同意に関するテスト回答です。"
 
     monkeypatch.setattr("app.main.generate_answer_with_llm", fake_generate_answer)
-    document_store.set_current_document(sample_policy_b_chunks(), "sample_policy_B.pdf")
+    document_store.set_current_document(sample_policy_b_chunks())
 
     response = client.post(
         "/ask",

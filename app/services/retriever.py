@@ -85,11 +85,3 @@ def search_relevant_chunks(question: str, chunks: list[dict], top_k: int = 3) ->
     scored_chunks.sort(key=lambda item: (-item[0], item[1]))
 
     return [chunk for _score, _index, chunk in scored_chunks[:top_k]]
-
-
-def search_best_chunk(question: str, chunks: list[dict]) -> dict | None:
-    relevant_chunks = search_relevant_chunks(question, chunks, top_k=1)
-    if not relevant_chunks:
-        return None
-
-    return relevant_chunks[0]
