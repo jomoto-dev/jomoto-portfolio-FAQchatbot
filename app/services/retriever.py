@@ -17,6 +17,15 @@ STOP_PHRASES = [
 PARTICLES = ["は", "が", "を", "に", "の", "へ", "と", "も", "で", "や", "か"]
 MARKS = ["、", "。", "？", "?", "！", "!", ".", ",", "（", "）", "(", ")"]
 
+# 質問文全体が本文にそのまま含まれる場合は、最も強い一致として扱います。
+EXACT_QUESTION_MATCH_BONUS = 5
+# 抽出したキーワードが本文に含まれる場合の基本点です。
+KEYWORD_MATCH_BONUS = 1
+# 長いキーワードは短い語より文脈を絞り込みやすいため、追加点を付けます。
+LONG_KEYWORD_BONUS = 1
+# 「規約の同意」のような連体修飾を含む語句を、まとまった重要語として優先します。
+POSSESSIVE_PHRASE_BONUS = 2
+
 
 def _extract_keywords(question: str) -> list[str]:
     cleaned = question
@@ -52,17 +61,17 @@ def _score_chunk(question: str, keywords: list[str], chunk: dict) -> int:
 
     compact_question = question.strip()
     if len(compact_question) >= 4 and compact_question in text:
-        score += 5
+        score += EXACT_QUESTION_MATCH_BONUS
 
     for keyword in keywords:
         if keyword not in text:
             continue
 
-        score += 1
+        score += KEYWORD_MATCH_BONUS
         if len(keyword) >= 4:
-            score += 1
+            score += LONG_KEYWORD_BONUS
         if "の" in keyword:
-            score += 2
+            score += POSSESSIVE_PHRASE_BONUS
 
     return score
 
