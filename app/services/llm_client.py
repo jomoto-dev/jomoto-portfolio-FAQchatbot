@@ -21,7 +21,7 @@ def generate_answer_with_llm(question: str, context: str) -> str:
     load_dotenv()
 
     api_key = os.getenv("OPENAI_API_KEY")
-    model = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+    model = os.getenv("OPENAI_MODEL", "gpt-5.4-mini")
 
     if not api_key:
         raise RuntimeError("OPENAI_API_KEYが設定されていません。")
