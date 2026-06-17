@@ -17,24 +17,6 @@ UPLOAD_DIR = Path(__file__).resolve().parents[1] / "uploads"
 CURRENT_PDF = UPLOAD_DIR / "current.pdf"
 
 
-def _build_llm_context(chunks: list[dict]) -> str:
-    context_parts = []
-    for chunk in chunks:
-        context_parts.append(
-            "\n".join(
-                [
-                    f"チャンクID: {chunk['chunk_id']}",
-                    f"出典: {chunk['source']}",
-                    f"ページ: {chunk['page']}",
-                    "本文:",
-                    chunk["text"],
-                ]
-            )
-        )
-
-    return "\n\n---\n\n".join(context_parts)
-
-
 # ブラウザ用のチャット画面を返します。
 @app.get("/")
 def index():
@@ -98,10 +80,8 @@ def ask(request: AskRequest):
             "citations": [],
         }
 
-    context = _build_llm_context(relevant_chunks)
-
     try:
-        answer = generate_answer_with_llm(question=question, context=context)
+        answer = generate_answer_with_llm(question=question, chunks=relevant_chunks)
     except RuntimeError:
         raise HTTPException(
             status_code=500,

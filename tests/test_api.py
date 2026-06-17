@@ -41,7 +41,7 @@ def use_temporary_upload_path(monkeypatch, tmp_path):
     monkeypatch.setattr(main, "CURRENT_PDF", upload_dir / "current.pdf")
 
 
-def fake_generate_answer_with_llm(question: str, context: str) -> str:
+def fake_generate_answer_with_llm(question: str, chunks: list[dict]) -> str:
     return "LLMによるテスト回答です。"
 
 
@@ -169,9 +169,9 @@ def test_ask_returns_answer_and_citations(monkeypatch):
 def test_ask_sends_multiple_relevant_chunks_to_llm(monkeypatch):
     captured = {}
 
-    def fake_generate_answer(question: str, context: str) -> str:
+    def fake_generate_answer(question: str, chunks: list[dict]) -> str:
         captured["question"] = question
-        captured["context"] = context
+        captured["chunks"] = chunks
         return "規約の同意に関するテスト回答です。"
 
     monkeypatch.setattr("app.main.generate_answer_with_llm", fake_generate_answer)
@@ -191,13 +191,15 @@ def test_ask_sends_multiple_relevant_chunks_to_llm(monkeypatch):
         "chunk_003",
     ]
     assert captured["question"] == "規約の同意はどのように成立する？"
-    assert "チャンクID: chunk_002" in captured["context"]
-    assert "ページ: 1" in captured["context"]
-    assert "規約の同意" in captured["context"]
+    assert [chunk["chunk_id"] for chunk in captured["chunks"]] == [
+        "chunk_002",
+        "chunk_001",
+        "chunk_003",
+    ]
 
 
 def test_ask_returns_500_when_llm_generation_fails(monkeypatch):
-    def raise_runtime_error(question: str, context: str) -> str:
+    def raise_runtime_error(question: str, chunks: list[dict]) -> str:
         raise RuntimeError
 
     monkeypatch.setattr("app.main.generate_answer_with_llm", raise_runtime_error)
