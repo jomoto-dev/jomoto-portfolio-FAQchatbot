@@ -6,7 +6,6 @@ from app.main import app
 from app.state import document_store
 
 
-# FastAPIアプリをテスト用クライアントで呼び出します。
 client = TestClient(app)
 
 

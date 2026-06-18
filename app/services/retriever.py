@@ -17,18 +17,14 @@ STOP_PHRASES = [
 PARTICLES = ["は", "が", "を", "に", "の", "へ", "と", "も", "で", "や", "か"]
 MARKS = ["、", "。", "？", "?", "！", "!", ".", ",", "（", "）", "(", ")"]
 
-# 質問文全体が本文にそのまま含まれる場合は、最も強い一致として扱います。
 EXACT_QUESTION_MATCH_BONUS = 5
-# 抽出したキーワードが本文に含まれる場合の基本点です。
 KEYWORD_MATCH_BONUS = 1
-# 長いキーワードは短い語より文脈を絞り込みやすいため、追加点を付けます。
 LONG_KEYWORD_BONUS = 1
-# 「規約の同意」のような連体修飾を含む語句を、まとまった重要語として優先します。
 POSSESSIVE_PHRASE_BONUS = 2
 
 
 def _extract_keywords(question: str) -> list[str]:
-    """質問文から検索に使う2文字以上の重要語を順序を保って抽出します。"""
+
     cleaned = question
     for word in STOP_PHRASES:
         cleaned = cleaned.replace(word, " ")

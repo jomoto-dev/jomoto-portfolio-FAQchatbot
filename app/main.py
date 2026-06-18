@@ -9,7 +9,6 @@ from app.services.pdf_loader import load_pdf_chunks
 from app.services.retriever import search_relevant_chunks
 from app.state import document_store
 
-# FastAPIアプリケーションを作成します。
 app = FastAPI()
 
 INDEX_FILE = Path(__file__).resolve().parent / "static" / "index.html"
@@ -17,13 +16,11 @@ UPLOAD_DIR = Path(__file__).resolve().parents[1] / "uploads"
 CURRENT_PDF = UPLOAD_DIR / "current.pdf"
 
 
-# ブラウザ用のチャット画面を返します。
 @app.get("/")
 def index():
     return FileResponse(INDEX_FILE)
 
 
-# ヘルスチェック用のエンドポイントです。
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -61,7 +58,6 @@ async def upload_pdf(file: UploadFile = File(...)):
     }
 
 
-# アップロード済みPDFから質問に関連しそうなチャンクを返すエンドポイントです。
 @app.post("/ask")
 def ask(request: AskRequest):
     question = request.question.strip()

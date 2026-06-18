@@ -29,7 +29,7 @@ def build_llm_context(chunks: list[dict]) -> str:
 
 
 def generate_answer_with_llm(question: str, chunks: list[dict]) -> str:
-    """OpenAI APIを使い、1件以上のPDF抜粋に基づく回答文を生成します。"""
+
     try:
         from dotenv import load_dotenv
         from openai import OpenAI
