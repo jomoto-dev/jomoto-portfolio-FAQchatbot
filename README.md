@@ -386,7 +386,7 @@ faq-rag-chatbot/
 `data/sample_policy_A.pdf`, `data/sample_policy_B.pdf` は動作確認用のサンプルPDFです。通常フローでは、ユーザーがアップロードしたPDFを現在の検索対象として扱います。`uploads/` は実行時にアップロードPDFを一時保存するためのフォルダで、PDF本体はGit管理対象外にしています。
 
 - 各ファイルの関係性を表した図
-<img width="800" alt="Image" src="https://github.com/user-attachments/assets/334c88d0-d02d-4f4c-8cf7-581785defdf1" />
+<img width="800" alt="Image" src="https://github.com/user-attachments/assets/094cab07-8858-41a3-9a77-e58bfebcd875" />
 
 ## テスト方法
 
